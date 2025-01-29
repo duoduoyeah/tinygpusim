@@ -1,2 +1,2 @@
 # tinygpusim
-Tiny GPU Simulator for learning.
+Tiny GPU Simulator built from scratch for learning.
