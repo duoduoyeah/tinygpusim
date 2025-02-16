@@ -1,19 +1,7 @@
-from typing import List, Dict
+from typing import List, Optional
 from dataclasses import field
-
-
-class ShaderPipeInput:
-    """Front-end for shader instruction processing"""
-
-    def __init__(self, pipe_depth=32):
-        self.instruction_queue = field(default_factory=list)
-        self.pipe_depth = pipe_depth
-
-    def enqueue(self):
-        pass
-
-    def process_next(self):
-        pass
+from ..computation_entities import Workgroup, Wavefront
+from .local_data_share import LocalDataShare
 
 
 class ComputeUnit:
@@ -25,10 +13,11 @@ class ComputeUnit:
         cycle_count: Total executed cycles
     """
 
-    def __init__(self, simd_width=32):
-        self.simd_width = simd_width
-        self.reg_file = [0] * 256  # 256 registers
-        self.cycle_count = 0
+    def __init__(self, local_data_share: LocalDataShare):
+        self.waverfront_slots = field(default_factory=list)
+        self.scalar_registers = field(default_factory=list)
+        self.vector_registers = field(default_factory=list)
+        self.local_data_share = local_data_share
 
 
 class ShaderArray:
@@ -40,7 +29,10 @@ class ShaderArray:
     """
 
     def __init__(self, cu_count=4):
-        self.compute_units: List[ComputeUnit] = [ComputeUnit() for _ in range(cu_count)]
+        data_share = LocalDataShare()
+        self.compute_units: List[ComputeUnit] = [
+            ComputeUnit(local_data_share=data_share) for _ in range(cu_count)
+        ]
 
 
 class ShaderEngine:
@@ -53,9 +45,25 @@ class ShaderEngine:
 
     def __init__(
         self,
-        shader_arrays: Dict[str, ShaderArray],
+        shader_arrays: List[ShaderArray],
     ):
-        self.shader_arrays: Dict[str, ShaderArray] = shader_arrays
+        self.shader_arrays: List[ShaderArray] = shader_arrays
 
-    def process_instruction(self, instruction):
-        pass
+
+class ShaderPipeInput:
+    """Front-end for shader instruction processing"""
+
+    def __init__(self, shader_engine: ShaderEngine):
+        self.shader_engine = shader_engine
+        self.workgroup: Optional[Workgroup] = None
+
+    def get_workgroup(self) -> Optional[Workgroup]:
+        return self.workgroup
+
+    def break_workgroup_into_wavefronts(self):
+        """Break the workgroup into wavefronts"""
+        wavefront_per_workgroup = 4
+        if self.workgroup is not None:
+            self.wavefronts = [
+                Wavefront(self.workgroup) for _ in range(wavefront_per_workgroup)
+            ]

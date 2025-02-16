@@ -7,6 +7,7 @@
 # 4. Memory system update -> Dedicated memory stage
 # 5. Visualization        -> Debugging stage not present in real hardware
 
+
 def run_gpu_simulation(instruction_stream: list):
     """
     Input:

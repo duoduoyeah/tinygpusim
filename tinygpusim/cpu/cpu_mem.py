@@ -18,7 +18,7 @@ class CPUMemory:
         """
         if address < 0 or address + size > self.size:
             raise IndexError("Invalid memory access")
-        return self.memory[address:address + size]
+        return self.memory[address : address + size]
 
     def write(self, address, data):
         """
@@ -26,4 +26,4 @@ class CPUMemory:
         """
         if address < 0 or address + len(data) > self.size:
             raise IndexError("Invalid memory access")
-        self.memory[address:address + len(data)] = data
+        self.memory[address : address + len(data)] = data

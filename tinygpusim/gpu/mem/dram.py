@@ -34,12 +34,12 @@ class DRAMController:
     @check_address
     def load(self, address, size):
         """Read from memory"""
-        return self.storage[address: address + size]
+        return self.storage[address : address + size]
 
     @check_address
     def store(self, address, data):
         """Write to memory"""
-        self.storage[address: address + len(data)] = data
+        self.storage[address : address + len(data)] = data
 
 
 if __name__ == "__main__":
