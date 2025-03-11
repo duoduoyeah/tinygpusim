@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "tinygpusim"
+version = "0.1.0"
+description = ""
+authors = ["Shiyuan <lizhicuo2020@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+
+[tool.poetry.group.dev.dependencies]
+flake8 = "^7.1.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
