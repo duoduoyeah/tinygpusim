@@ -1,3 +1,6 @@
+from typing import List
+
+
 class DRAMController:
     """
     capacity in bytes
@@ -40,6 +43,33 @@ class DRAMController:
     def store(self, address, data):
         """Write to memory"""
         self.storage[address : address + len(data)] = data
+
+    def vector_load(self, addresses: List[int], sizes: List[int]) -> List[bytes]:
+        """
+        Perform vectorized load operation
+
+        Args:
+            addresses: List of addresses to load from
+            sizes: Size of each load
+
+        Returns:
+            List of data loaded from each address
+        """
+        results = []
+        for addr, size in zip(addresses, sizes):
+            results.append(self.load(addr, size))
+        return results
+
+    def vector_store(self, addresses: List[int], data: List[bytes]):
+        """
+        Perform vectorized store operation
+
+        Args:
+            addresses: List of addresses to store to
+            data: List of data to store at each address
+        """
+        for addr, d in zip(addresses, data):
+            self.store(addr, d)
 
 
 if __name__ == "__main__":

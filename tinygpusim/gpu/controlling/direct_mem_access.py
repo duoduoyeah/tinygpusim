@@ -37,18 +37,34 @@ class DMAEngine:
     def available(self) -> bool:
         return self._available
 
+    def demand(self, kernel: Kernel):
+        """Process a memory copy command from the command processor"""
+        self.kernel = kernel
+        self._available = False
+
+        # Extract memory copy parameters from the kernel
+        src_addr = kernel.src_addr
+        dst_addr = kernel.dst_addr
+        size = kernel.size
+
+        # Perform the actual memory copy
+        self.copy_from_cpu_to_dram(src_addr, dst_addr, size)
+
+        # Mark as complete
+        self.kernel = None
+        self._available = True
+
     def receive_kernel(self, kernel: Kernel):
         """Receive a kernel from the CPU"""
-        self.kernel = kernel
-        self.update_available()
+        # For backward compatibility - redirect to demand
+        self.demand(kernel)
 
     def update_available(self):
         """Update the availability of the DMA engine"""
-        self._available = True
+        self._available = self.kernel is None
 
     def copy_from_cpu_to_dram(self, src_addr, dst_addr, size):
-        """Copies data from CPU memory to DRAM.
-        """
+        """Copies data from CPU memory to DRAM."""
         data = self.cpu.read(src_addr, size)
         self.dram.write(dst_addr, data)
 

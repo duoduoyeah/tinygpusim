@@ -11,7 +11,7 @@ class CommandProcessor:
     This class receives commands such as memory-copying and kernel-launching
     from the CPU and delegates them to appropriate GPU blocks.
 
-    
+
     Attributes:
         dma_engine: DMA engine for memory transfers
         async_compute_engine: Async compute engine for kernel execution
@@ -25,9 +25,7 @@ class CommandProcessor:
         dma_engines: List[DMAEngine],
         async_compute_engines: List[AsyncComputeEngine],
     ):
-        self.dma_engines = {
-            dma_engine.id: dma_engine for dma_engine in dma_engines
-        }
+        self.dma_engines = {dma_engine.id: dma_engine for dma_engine in dma_engines}
 
         self.async_compute_engines = {
             async_compute_engine.id: async_compute_engine
@@ -35,7 +33,8 @@ class CommandProcessor:
         }
 
         self.available_dma: deque[int] = deque(
-            dma_engine.id for dma_engine in dma_engines)
+            dma_engine.id for dma_engine in dma_engines
+        )
         self.available_ace: deque[int] = deque(
             async_compute_engine.id for async_compute_engine in async_compute_engines
         )

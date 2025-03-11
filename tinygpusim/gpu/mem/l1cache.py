@@ -1,33 +1,59 @@
+from typing import List
+from .texture_addressing import TextureAddressing
+
 class L1Cache:
-    """32KB L1 data cache with LRU policy
-    Args:
-        line_size (int): Cache line size in bytes
-        ways (int): Associativity
-    Attributes:
-        tags: Cache tag storage
-        lru_counter: Replacement tracking
-    """
+    """32KB L1 data cache with LRU policy"""
 
-    def __init__(self, line_size=64, ways=4):
+    def __init__(self):
+        pass
+
+
+class L1VCache(L1Cache):
+    """L1 Vector Cache with memory coalescing support"""
+
+    def __init__(self, size=32 * 1024, line_size=64):
+        super().__init__()
+        self.size = size
         self.line_size = line_size
-        self.ways = ways
-        self.tags = {}
-        self.lru_counter = 0
+        self.texture_addressing = TextureAddressing(transaction_size=line_size)
 
-    def access(self, address, is_write):
-        """Handle cache access
-        Args:
-            address (int): Memory address
-            is_write (bool): Write operation flag
-        Returns:
-            bool: True if hit
+    def vector_load(self, addresses: List[int], sizes: List[int]) -> List[bytes]:
         """
-        tag = address // self.line_size
-        set_idx = tag % self.ways
+        Handle vectorized load operation with memory coalescing
 
-        if tag in self.tags.get(set_idx, []):
-            # Hit
-            self.lru_counter += 1
-            return True
-        # Miss handling
-        return False
+        Args:
+            addresses: List of addresses to load from
+            sizes: Size of each load
+
+        Returns:
+            List of data loaded from each address
+        """
+        # Use TA block to coalesce requests
+        coalesced_requests = self.texture_addressing.coalesce_memory_requests(
+            addresses, sizes
+        )
+
+        # Perform coalesced memory transactions
+        results = []
+        for start_addr, size in coalesced_requests:
+            data = self._load_block(start_addr, size)
+            # Split coalesced data back into individual results
+            results.extend(self._decoalesce_data(data, addresses, sizes))
+
+        return results
+
+
+class L1SCache(L1Cache):
+    """L1 Scalar Cache."""
+
+    def __init__(self):
+        super().__init__()
+        pass
+
+
+class L1ICache(L1Cache):
+    """L1 Instruction Cache."""
+
+    def __init__(self):
+        super().__init__()
+        pass
